@@ -1,0 +1,67 @@
+project: "SegFormer3D SEVIR Training"
+
+wandb_parameters:
+  group: "segformer_sevir"
+  name: "segformer3d_sevir_experiment"
+
+training_parameters:
+  num_epochs: 50
+  grad_accumulate_steps: 1
+  checkpoint_save_dir: "./checkpoints"
+  seed: 42
+  load_checkpoint:
+    load_full_checkpoint: False
+
+dataset_parameters:
+  seq_len: 49
+  sample_mode: "sequent"
+  stride: 12
+  batch_size: 4
+  layout: "NCTHW"
+  dataset_name: "sevir"
+  start_date: [2017, 1, 1]
+  train_val_split_date: [2019, 1, 1]
+  train_test_split_date: [2019, 6, 1]
+  end_date: [2020, 1, 1]
+  num_workers: 4
+
+# model parameters
+model_name: segformer3d
+model_parameters:
+  in_channels: 1
+  sr_ratios: [8, 4, 2, 1]
+  embed_dims: [64, 128, 320, 512]
+  patch_kernel_size: [3, 7, 7]
+  patch_stride: [1, 4, 4]
+  patch_padding: [1, 3, 3]
+  mlp_ratios: [4, 4, 4, 4]
+  num_heads: [1, 2, 5, 8]
+  depths: [2, 2, 2, 2]
+  decoder_head_embedding_dim: 256
+  num_classes: 1
+  decoder_dropout: 0.0
+
+# loss function
+loss_fn:
+  loss_type: "dice"
+  loss_args: None
+
+# optimizer
+optimizer:
+  optimizer_type: "adamw"
+  optimizer_args:
+    lr: 0.0001
+    weight_decay: 0.01
+
+# schedulers
+warmup_scheduler:
+  enabled: True # should be always true
+  warmup_epochs: 20
+
+train_scheduler:
+  scheduler_type: 'cosine_annealing_wr'
+  scheduler_args:
+    t_0_epochs: 400
+    t_mult: 1
+    min_lr: 0.000006
+
